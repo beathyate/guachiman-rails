@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>guachiman-rails by goddamnhippie</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">guachiman-rails</h1>
+        <p class="header">Authorization gem for Rails</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/goddamnhippie/guachiman-rails/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/goddamnhippie/guachiman-rails/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/goddamnhippie/guachiman-rails">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/goddamnhippie">goddamnhippie</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a name="guachiman-for-rails" class="anchor" href="#guachiman-for-rails"><span class="octicon octicon-link"></span></a>Guachiman for Rails</h1>
+
+<p>Basic Authorization gem for rails based on <a href="http://railscasts.com/episodes/385-authorization-from-scratch-part-1">RailsCast #385 Authorization from Scratch</a> by Ryan Bates.
+Built on top of <a href="https://github.com/goddamnhippie/guachiman">guachiman</a>.</p>
+
+<p><a href="https://www.codeship.io/projects/28084"><img src="https://www.codeship.io/projects/06034ef0-f456-0131-65bd-5a054a318c0e/status" alt="Codeship Status for goddamnhippie/guachiman-rails"></a></p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Add this line to your application's Gemfile:</p>
+
+<div class="highlight highlight-ruby"><pre><span class="n">gem</span> <span class="s1">'guachiman-rails'</span>
+</pre></div>
+
+<p>And then execute:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>bundle
+</pre></div>
+
+<p>Or install it directly:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>gem install guachiman-rails
+</pre></div>
+
+<h2>
+<a name="upgrade-notice" class="anchor" href="#upgrade-notice"><span class="octicon octicon-link"></span></a>Upgrade Notice</h2>
+
+<p><strong>Version 1.0.0 is incompatible with version =&lt; 0.3.2.</strong></p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Run <code>rails g guachiman:install</code></p>
+
+<p>This will generate a <code>authorization.rb</code> file in <code>app/models</code>.</p>
+
+<p>Include <code>Guachiman::Authorizable</code> in <code>ApplicationController</code> and implement a <code>current_user</code> method there.</p>
+
+<div class="highlight highlight-ruby"><pre><span class="c1"># app/controllers/application_controller.rb</span>
+
+<span class="kp">include</span> <span class="no">Guachiman</span><span class="o">::</span><span class="no">Authorizable</span>
+
+<span class="k">def</span> <span class="nf">current_user</span>
+  <span class="vi">@current_user</span> <span class="o">||=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_by_auth_token</span><span class="p">(</span><span class="n">cookies</span><span class="o">[</span><span class="ss">:auth_token</span><span class="o">]</span><span class="p">)</span> <span class="k">if</span> <span class="n">cookies</span><span class="o">[</span><span class="ss">:auth_token</span><span class="o">]</span>
+<span class="k">end</span>
+</pre></div>
+
+<p>You can also override these methods to change the behaviour, for example:</p>
+
+<h3>
+<a name="to-skip-authorization-for-admins" class="anchor" href="#to-skip-authorization-for-admins"><span class="octicon octicon-link"></span></a>To skip authorization for admins</h3>
+
+<p>Defaults to <code>false</code>.</p>
+
+<div class="highlight highlight-ruby"><pre><span class="k">def</span> <span class="nf">skip_authorization?</span>
+  <span class="n">current_user</span><span class="o">.</span><span class="n">admin?</span>
+<span class="k">end</span>
+</pre></div>
+
+<h3>
+<a name="to-handle-what-happens-after-the-authorization-takes-place" class="anchor" href="#to-handle-what-happens-after-the-authorization-takes-place"><span class="octicon octicon-link"></span></a>To handle what happens after the authorization takes place</h3>
+
+<p>This is the default implementation. You can modify it or break it up if you need to authorise
+parameters, redirect to a different page or use a different flash key (for example).</p>
+
+<div class="highlight highlight-ruby"><pre><span class="k">def</span> <span class="nf">after_authorization</span><span class="p">(</span><span class="n">authorized</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kp">true</span> <span class="k">if</span> <span class="n">authorized</span>
+
+  <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">get?</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">request</span><span class="o">.</span><span class="n">xhr?</span>
+    <span class="n">session</span><span class="o">[</span><span class="ss">:next</span><span class="o">]</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span>
+    <span class="n">redirect_to</span> <span class="n">root_path</span><span class="p">,</span> <span class="ss">alert</span><span class="p">:</span> <span class="n">t</span><span class="p">(</span><span class="ss">:unauthorized</span><span class="p">)</span>
+  <span class="k">else</span>
+    <span class="n">render</span> <span class="ss">nothing</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">status</span><span class="p">:</span> <span class="ss">:unauthorized</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+<p>Now you can describe your authorization object in this way:</p>
+
+<div class="highlight highlight-ruby"><pre><span class="k">class</span> <span class="nc">Authorization</span>
+  <span class="kp">include</span> <span class="no">Guachiman</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">if</span> <span class="vi">@current_user</span> <span class="o">=</span> <span class="n">user</span>
+      <span class="n">user_authorization</span>
+    <span class="k">else</span>
+      <span class="n">guest_authorization</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+<span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">guest_authorization</span>
+    <span class="n">allow</span> <span class="ss">:sessions</span><span class="p">,</span> <span class="o">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span>
+    <span class="n">allow</span> <span class="ss">:users</span><span class="p">,</span>    <span class="o">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">user_authorization</span>
+    <span class="n">guest_authorization</span>
+
+    <span class="n">allow</span> <span class="ss">:users</span><span class="p">,</span> <span class="o">[</span><span class="ss">:show</span><span class="p">,</span> <span class="ss">:edit</span><span class="p">,</span> <span class="ss">:update</span><span class="o">]</span> <span class="k">do</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span>
+      <span class="vi">@current_user</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+<p>The method <code>#current_resource</code> will default to nil but you can override in the controllers:</p>
+
+<div class="highlight highlight-ruby"><pre><span class="k">class</span> <span class="nc">UsersController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="c1"># ...</span>
+
+  <span class="k">def</span> <span class="nf">current_resource</span>
+    <span class="vi">@user</span> <span class="o">||=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">].</span><span class="n">present?</span> <span class="p">?</span> <span class="no">User</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span> <span class="p">:</span> <span class="no">User</span><span class="o">.</span><span class="n">new</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>MIT</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
