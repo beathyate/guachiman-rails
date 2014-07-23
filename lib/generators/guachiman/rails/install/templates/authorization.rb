@@ -1,31 +1,25 @@
 class Authorization
   include Guachiman
 
-  attr_reader :current_user, :current_request
-
-  def initialize user, request
-    @current_user    = user
-    @current_request = request
-
-    if current_user.nil?
-      guest
-    elsif current_user.admin?
-      admin
+  def initialize(user)
+    if @current_user = user
+      user_authorization
     else
-      member
+      guest_authorization
     end
   end
 
 private
 
-  def guest
+  def guest_authorization
+    # allow :sessions, [:new, :create]
   end
 
-  def member
-    guest
-  end
+  def user_authorization
+    guest_authorization
 
-  def admin
-    allow_all!
+    # allow :users, [:show, :edit, :update] do |user_id|
+    #   @current_user.id == user_id
+    # end
   end
 end

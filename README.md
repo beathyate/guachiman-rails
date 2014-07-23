@@ -1,7 +1,7 @@
-Guachiman
-=========
+Guachiman for Rails
+===================
 
-Basic Authorization gem. Based on [RailsCast #385 Authorization from Scratch][1] from Ryan Bates.
+Basic Authorization gem for rails based on [RailsCast #385 Authorization from Scratch][1] by Ryan Bates.
 
 [![Codeship Status for goddamnhippie/guachiman-rails][2]][3]
 
@@ -15,7 +15,7 @@ Installation
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'guachiman'
+gem 'guachiman-rails'
 ```
 
 And then execute:
@@ -24,10 +24,10 @@ And then execute:
 $ bundle
 ```
 
-Or install it yourself as:
+Or install it directly:
 
 ```bash
-$ gem install guachiman
+$ gem install guachiman-rails
 ```
 
 Usage
@@ -37,139 +37,87 @@ Run `rails g guachiman:install`
 
 This will generate a `authorization.rb` file in `app/models`.
 
-Include `Guachiman::Permissible` in `ApplicationController` and implement a `current_user` method there.
+Include `Guachiman::Authorizable` in `ApplicationController` and implement a `current_user` method there.
 
 ```ruby
 # app/controllers/application_controller.rb
 
-include Guachiman::Permissible
+include Guachiman::Authorizable
 
 def current_user
   @current_user ||= User.find_by_auth_token(cookies[:auth_token]) if cookies[:auth_token]
 end
 ```
 
-You can also override these methods to handle failed authorizations for GET, non-AJAX requests:
+You can also override these methods to change the behaviour, for example:
+
+### To skip authorization for admins
+
+Defaults to `false`.
 
 ```ruby
-def not_authorized
-  redirect_to root_path, alert: t('flashes.not_authorized')
+def skip_authorization?
+  current_user.admin?
 end
 ```
 
-And you can also override this method to handle failed non-GET or AJAX requests:
+### To handle what happens after the authorization takes place
+
+This is the default implementation.
 
 ```ruby
-def render_unauthorized
-  render text: "NO", status: :unauthorized
+def after_authorization(authorized)
+  return true if authorized
+
+  if request.get? && !request.xhr?
+    redirect_to root_path, alert: t(:not_authorized)
+  else
+    render nothing: true, status: :unauthorized
+  end
 end
 ```
 
-That's it, now you can describe your permissions in this way:
+That's it, now you can describe your authorization object in this way:
 
 ```ruby
-class Permission
-  include Guachiman::Permissions
-  include Guachiman::Params
+class Authorization
+  include Guachiman
 
-  attr_reader :current_user, :current_request
-
-  def initialize user, request
-    @current_user    = user
-    @current_request = request
-
-    if current_user.nil?
-      guest
-    elsif current_user.admin?
-      admin
+  def initialize(user)
+    if @current_user = user
+      user_authorization
     else
-      member
+      guest_authorization
     end
   end
 
 private
 
-  def guest
-    allow :sessions, [:new, :create, :destroy]
+  def guest_authorization
+    allow :sessions, [:new, :create]
     allow :users,    [:new, :create]
-
-    allow_param :user, [:name, :email, :password]
   end
 
-  def member
-    guest
-    allow :users, [:show, :edit, :update]
-  end
+  def user_authorization
+    guest_authorization
 
-  def admin
-    allow_all!
+    allow :users, [:show, :edit, :update] do |user|
+      @current_user.id == user.id
+    end
   end
 end
 ```
 
-* `#allow` takes a **controller** params key or array of keys and an array of **actions**.
-* `#allow_param` takes a **model** params key or array of keys and an array of **attributes**.
-* `#allow_all!` is a convenience method to allow **all** controllers, actions and parameteres.
-
-You can also go a bit further in the way you specify your permissions, if you override `current_resource`:
+The method `#current_resource` will default to nil but you can override in the controllers:
 
 ```ruby
-class OrdersController < ApplicationController
-...
+class UsersController < ApplicationController
+  # ...
 
-private
   def current_resource
-    @order ||= params[:id].present? ? Order.find(params[:id]) : Order.new
+    @user ||= params[:id].present? ? User.find(params[:id]) : User.new
   end
 end
-```
-
-The `current_resource` is passed to a block that needs to return a truthy object to allow the action.
-
-```ruby
-def guest
-  allow :sessions, [:new, :create, :destroy]
-  allow :users,    [:new, :create]
-  allow :orders,   [:show, :edit, :update] do |order|
-    order.accessible_by_token? current_request.cookies['cart_token']
-  end
-
-  allow_param :user, [:name, :email, :password]
-end
-
-def member
-  guest
-
-  allow :users,  [:show, :edit, :update] do |user|
-    current_user == user
-  end
-  allow :orders, [:show, :edit, :update] do |order|
-    order.accessible_by_user? user
-  end
-end
-```
-
-You can also be more specific about the param permissions setting them to be read or write.
-
-```ruby
-def member
-  ...
-
-  allow_read_param  :contact, [:name, :phone, :email]
-  allow_write_param :contact, [:name, :phone]
-end
-```
-
-That can also be useful on the views because you get a `current_permission` helper that you can use like this:
-
-```erb
-<%= form_for @contact do |f| %>
-  <% current_permission.write_allowed_params[:contact].each do |p| %>
-    <%= f.text_field p %>
-  <% end %>
-
-  <%= f.submit %>
-<% end %>
 ```
 
 License
