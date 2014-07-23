@@ -1,6 +1,6 @@
 require 'test_helper'
 require 'rails/generators/test_case'
-require 'generators/guachiman/install/install_generator'
+require 'generators/guachiman/rails/install/install_generator'
 
 class InstallGeneratorTest < Rails::Generators::TestCase
   DESTINATION = File.expand_path File.join(File.dirname(__FILE__), '..', '..', 'tmp')
@@ -22,7 +22,7 @@ class InstallGeneratorTest < Rails::Generators::TestCase
   test 'create permission' do
     run_generator
 
-    assert_file 'app/models/permission.rb' do |f|
+    assert_file 'app/models/authorization.rb' do |f|
       assert_match /include Guachiman/, f
     end
   end

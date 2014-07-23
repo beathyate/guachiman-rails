@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'guachiman-rails/version'
+require 'guachiman/rails/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'guachiman-rails'
-  spec.version       = GuachimanRails::VERSION
+  spec.version       = Guachiman::Rails::VERSION
   spec.authors       = ['Francesco Rodriguez', 'Gustavo Beathyate']
   spec.email         = ['lrodriguezsanc@gmail.com', 'gustavo.bt@me.com']
   spec.summary       = 'Rails specific implementation of the Guachiman gem'
