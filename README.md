@@ -32,6 +32,11 @@ Or install it directly:
 $ gem install guachiman-rails
 ```
 
+Upgrade Notice
+--------------
+
+**Version 1.0.0 is incompatible with version =< 0.3.2.**
+
 Usage
 -----
 
@@ -65,21 +70,23 @@ end
 
 ### To handle what happens after the authorization takes place
 
-This is the default implementation.
+This is the default implementation. You can modify it or break it up if you need to authorise
+parameters, redirect to a different page or use a different flash key (for example).
 
 ```ruby
 def after_authorization(authorized)
   return true if authorized
 
   if request.get? && !request.xhr?
-    redirect_to root_path, alert: t(:not_authorized)
+    session[:next] = request.url
+    redirect_to root_path, alert: t(:unauthorized)
   else
     render nothing: true, status: :unauthorized
   end
 end
 ```
 
-That's it, now you can describe your authorization object in this way:
+Now you can describe your authorization object in this way:
 
 ```ruby
 class Authorization

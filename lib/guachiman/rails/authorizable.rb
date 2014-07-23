@@ -32,7 +32,8 @@ module Guachiman
       return true if authorized
 
       if request.get? && !request.xhr?
-        redirect_to root_path, alert: t(:not_authorized)
+        session[:next] = request.url
+        redirect_to root_path, alert: t(:unauthorized)
       else
         render nothing: true, status: :unauthorized
       end
