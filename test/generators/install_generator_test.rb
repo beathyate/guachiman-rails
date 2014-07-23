@@ -1,14 +1,14 @@
 require 'test_helper'
 require 'rails/generators/test_case'
-require 'generators/guachiman/rails/install/install_generator'
+require 'generators/guachiman/install/install_generator'
 
 class InstallGeneratorTest < Rails::Generators::TestCase
   DESTINATION = File.expand_path File.join(File.dirname(__FILE__), '..', '..', 'tmp')
-  FileUtils.mkdir_p DESTINATION unless Dir.exist? DESTINATION
+  FileUtils.mkdir_p(DESTINATION) unless Dir.exist?(DESTINATION)
 
   destination DESTINATION
 
-  tests Guachiman::Rails::Generators::InstallGenerator
+  tests Guachiman::Generators::InstallGenerator
   setup :prepare_destination
 
   def prepare_destination
@@ -23,7 +23,7 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     run_generator
 
     assert_file 'app/models/authorization.rb' do |f|
-      assert_match /include Guachiman/, f
+      assert_match(/include Guachiman/, f)
     end
   end
 end
