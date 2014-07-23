@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Francesco Rodriguez', 'Gustavo Beathyate']
   spec.email         = ['lrodriguezsanc@gmail.com', 'gustavo.bt@me.com']
   spec.summary       = 'Rails specific implementation of the Guachiman gem'
-  spec.description   = "#{ spec.summary } for authorization purposes"
+  spec.description   = "#{ spec.summary } for authorization in ActionController"
   spec.homepage      = 'https://github.com/goddamnhippie/guachiman-rails'
   spec.license       = 'MIT'
 
@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test)/})
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'guachiman', '~> 1.0', '>= 1.0.0'
+  spec.add_dependency 'guachiman', '~> 1.0', '>= 1.0.2'
   spec.add_dependency 'railties',  '~> 4.0', '>= 4.0.0'
 
   spec.add_development_dependency 'rake',     '~> 10.3', '>= 10.3.0'

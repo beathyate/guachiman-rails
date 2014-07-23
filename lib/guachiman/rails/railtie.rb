@@ -1,5 +1,4 @@
 require 'rails'
-require 'authorizable'
 
 module Guachiman
   module Rails
