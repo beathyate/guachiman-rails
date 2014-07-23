@@ -3,7 +3,11 @@ Guachiman
 
 Basic Authorization gem. Based on [RailsCast #385 Authorization from Scratch][1] from Ryan Bates.
 
+[![Codeship Status for goddamnhippie/guachiman-rails][2]][3]
+
 [1]: http://railscasts.com/episodes/385-authorization-from-scratch-part-1
+[2]: https://www.codeship.io/projects/06034ef0-f456-0131-65bd-5a054a318c0e/status
+[3]: https://www.codeship.io/projects/28084
 
 Installation
 ------------
