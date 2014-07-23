@@ -23,7 +23,7 @@ module Guachiman
     end
 
     def authorize
-      authorized = authorization.allow?(controller_name, action_name, current_resource)
+      authorized = authorization.allow?(controller_name.to_sym, action_name.to_sym, current_resource)
 
       after_authorization(authorized)
     end
