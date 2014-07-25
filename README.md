@@ -1,5 +1,5 @@
-Guachiman for Rails
-===================
+guachiman-rails
+===============
 
 Basic Authorization gem for rails based on [RailsCast #385 Authorization from Scratch][1] by Ryan Bates.
 Built on top of [guachiman][2].
