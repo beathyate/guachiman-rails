@@ -7,7 +7,11 @@ module Guachiman
     end
 
     def authorization
-      @authorization ||= Authorization.new(current_user)
+      @authorization ||= authorization_class.new(current_user)
+    end
+
+    def authorization_class
+      Authorization
     end
 
     def current_user
