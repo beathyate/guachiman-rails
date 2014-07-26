@@ -1,4 +1,4 @@
-require 'rails'
+require "rails"
 
 module Guachiman
   module Rails
