@@ -35,7 +35,7 @@ $ gem install guachiman-rails
 Upgrade Notice
 --------------
 
-**Version 1.0.0 is incompatible with version =< 0.3.2.**
+**Version `>= 1.0.0` is incompatible with version `=< 0.3.2`.**
 
 Usage
 -----
