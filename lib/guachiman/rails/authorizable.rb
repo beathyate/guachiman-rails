@@ -11,7 +11,7 @@ module Guachiman
     end
 
     def authorization_class
-      Authorization
+      ::Authorization
     end
 
     def current_user
