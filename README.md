@@ -44,7 +44,8 @@ Run `rails g guachiman:install`
 
 This will generate a `authorization.rb` file in `app/models`.
 
-Include `Guachiman::Authorizable` in `ApplicationController` and implement a `current_user` method there.
+Include `Guachiman::Authorizable` in `ApplicationController` and optionally implement a
+`current_user` method there (it defaults to `nil`).
 
 ```ruby
 # app/controllers/application_controller.rb

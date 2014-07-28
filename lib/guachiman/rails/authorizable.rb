@@ -15,7 +15,7 @@ module Guachiman
     end
 
     def current_user
-      raise NotImplementedError
+      nil
     end
 
     def current_resource
