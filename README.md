@@ -32,11 +32,6 @@ Or install it directly:
 $ gem install guachiman-rails
 ```
 
-Upgrade Notice
---------------
-
-**Version `>= 1.0.0` is incompatible with version `=< 0.3.2`.**
-
 Usage
 -----
 
@@ -57,27 +52,27 @@ def current_user
 end
 ```
 
-You can also override these methods to change the behaviour, for example:
-
-### To skip authorization for admins
-
-Defaults to `false`.
+### Skip authorization
 
 ```ruby
-def skip_authorization?
-  current_user && current_user.admin?
+class UsersController < ApplicationController
+  skip_before_action :authorize, if: :admin?
+  # ...
+  private
+
+  def admin?
+    current_user && current_user.admin?
+  end
 end
 ```
 
-### To handle what happens after the authorization takes place
+### Handle authorization failure
 
-This is the default implementation. You can modify it or break it up if you need to authorise
-parameters, redirect to a different page or use a different flash key (for example).
+The default implementation is to raise `Guachiman::UnauthorizedError`. You can rescue the error with a regular
+Rails `rescue_from` call or override the `#unauthorized` method directly:
 
 ```ruby
-def after_authorization(authorized)
-  return true if authorized
-
+def unauthorized
   if request.get? && !request.xhr?
     session[:next] = request.url
     redirect_to root_path, alert: t(:unauthorized)
@@ -93,26 +88,12 @@ Now you can describe your authorization object in this way:
 class Authorization
   include Guachiman
 
-  def initialize(user)
-    if @current_user = user
-      user_authorization
-    else
-      guest_authorization
-    end
-  end
+  def initialize(current_user)
+    allow :sessions, :new, :create
+    allow :users,    :new, :create
 
-private
-
-  def guest_authorization
-    allow :sessions, [:new, :create]
-    allow :users,    [:new, :create]
-  end
-
-  def user_authorization
-    guest_authorization
-
-    allow :users, [:show, :edit, :update] do |user|
-      @current_user.id == user.id
+    allow :users, :show, :edit, :update do |user|
+      current_user && current_user.id == user.id
     end
   end
 end
@@ -123,9 +104,10 @@ The method `#current_resource` will default to nil but you can override in the c
 ```ruby
 class UsersController < ApplicationController
   # ...
+  private
 
   def current_resource
-    @user ||= params[:id].present? ? User.find(params[:id]) : User.new
+    @user ||= User.find(params[:id]) if params[:id].present?
   end
 end
 ```

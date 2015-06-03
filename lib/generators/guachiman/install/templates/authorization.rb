@@ -1,25 +1,12 @@
 class Authorization
   include Guachiman
 
-  def initialize(user)
-    if @current_user = user
-      user_authorization
-    else
-      guest_authorization
-    end
-  end
+  def initialize(current_user)
+    # allow :sessions, :new, :create
+    # allow :users,    :new, :create
 
-private
-
-  def guest_authorization
-    # allow :sessions, [:new, :create]
-  end
-
-  def user_authorization
-    guest_authorization
-
-    # allow :users, [:show, :edit, :update] do |user_id|
-    #   @current_user.id == user_id
+    # allow :users, :show, :edit, :update do |user|
+    #  current_user && current_user.id == user.id
     # end
   end
 end

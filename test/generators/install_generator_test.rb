@@ -11,6 +11,8 @@ class InstallGeneratorTest < Rails::Generators::TestCase
   tests Guachiman::Generators::InstallGenerator
   setup :prepare_destination
 
+  self.test_order = :sorted
+
   def prepare_destination
     if Dir.exist?("#{ DESTINATION }/app")
       FileUtils.rm_r("#{ DESTINATION }/app")

@@ -3,15 +3,13 @@ module Guachiman
     extend ActiveSupport::Concern
 
     included do
-      before_action :authorize, unless: :skip_authorization?
+      before_action :authorize
+
+      private :current_resource, :authorize, :unauthorized
     end
 
     def authorization
-      @authorization ||= authorization_class.new(current_user)
-    end
-
-    def authorization_class
-      ::Authorization
+      @authorization ||= self.class.parents.first::Authorization.new(current_user)
     end
 
     def current_user
@@ -22,25 +20,24 @@ module Guachiman
       nil
     end
 
-    def skip_authorization?
-      false
-    end
-
     def authorize
-      authorized = authorization.allow?(controller_name.to_sym, action_name.to_sym, current_resource)
-
-      after_authorization(authorized)
+      unauthorized unless authorization.allow?(controller_name.to_sym, action_name.to_sym, current_resource)
     end
 
-    def after_authorization(authorized)
-      return true if authorized
+    def unauthorized
+      raise UnauthorizedError.new(controller_name, action_name, current_resource)
+    end
+  end
 
-      if request.get? && !request.xhr?
-        session[:next] = request.url
-        redirect_to root_path, alert: t(:unauthorized)
-      else
-        render nothing: true, status: :unauthorized
-      end
+  class UnauthorizedError < StandardError
+    attr_reader :controller, :action, :resource
+
+    def initialize(controller, action, resource)
+      @controller = controller
+      @action     = action
+      @resource   = resource
+
+      super("Unauthorized: #{ contoller }##{ action } (#{ resource.inspect })")
     end
   end
 end
