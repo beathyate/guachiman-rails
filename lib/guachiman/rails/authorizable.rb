@@ -5,16 +5,16 @@ module Guachiman
     included do
       before_action :authorize
       helper_method :authorization
-
-      private :current_resource, :authorize, :unauthorized
-    end
-
-    def authorization
-      @authorization ||= self.class.parents.first::Authorization.new(current_user)
     end
 
     def current_user
       nil
+    end
+
+    private
+
+    def authorization
+      @authorization ||= self.class.parents.first::Authorization.new(current_user)
     end
 
     def current_resource
