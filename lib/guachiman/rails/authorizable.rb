@@ -4,6 +4,7 @@ module Guachiman
 
     included do
       before_action :authorize
+      helper_method :authorization
 
       private :current_resource, :authorize, :unauthorized
     end
