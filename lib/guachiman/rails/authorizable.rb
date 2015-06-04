@@ -38,7 +38,7 @@ module Guachiman
       @action     = action
       @resource   = resource
 
-      super("Unauthorized: #{ contoller }##{ action } (#{ resource.inspect })")
+      super("Unauthorized: #{ controller }##{ action } (#{ resource.inspect })")
     end
   end
 end
